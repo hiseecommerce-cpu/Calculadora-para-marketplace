@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Precificação - HISE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --bg-main: #F7F8FA;
+            --bg-card: #FFFFFF;
+            --text-primary: #17181A;
+            --text-secondary: #667085;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        html { font-size: 16px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* ============================================= HEADER ============================================= */
+        .header {
+            background: linear-gradient(135deg, #0A1A4A 0%, #1E4FE0 100%);
+            border-bottom: none;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .hise-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: white;
+            line-height: 1.3;
+        }
+
+        .header-title p {
+            display: none;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-item.active {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        /* ============================================= MAIN LAYOUT ============================================= */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1200px) {
+            .calculator-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================= FORM SECTION ============================================= */
+        .form-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .field-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .field-label {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: var(--text-secondary);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.625rem;
+            font-weight: 700;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            font-weight: 400;
+            white-space: nowrap;
+            width: 180px;
+            white-space: normal;
+            text-align: center;
+        }
+
+        .field-help-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.375rem;
+        }
+
+        .field input,
+        .field select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            background: #F8F8FA;
+            color: var(--text-primary);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .field input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .marketplace-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+        }
+
+        .marketplace-option {
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .marketplace-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .marketplace-option:hover {
+            border-color: var(--border);
+            background: #F7F8FA;
+        }
+
+        .marketplace-option.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .marketplace-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marketplace-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .field-error {
+            color: var(--danger);
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        .field.error .field-error {
+            display: block;
+        }
+
+        .field.error input,
+        .field.error select {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .collapsible-section {
+            margin-top: 1.5rem;
+        }
+
+        .collapsible-header {
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .collapsible-header:hover {
+            background: #EEEFF5;
+        }
+
+        .collapsible-header.open {
+            background: var(--bg-main);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: 0 0 8px 8px;
+            margin-top: 0.5rem;
+        }
+
+        .collapsible-content.open {
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #EEEFF5;
+        }
+
+        /* ============================================= RESULT SECTION ============================================= */
+        .result-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-header-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-marketplace-icon {
+            font-size: 2.5rem;
+        }
+
+        .result-title h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .result-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .result-status.healthy {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .result-status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .result-status.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .result-summary {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+        }
+
+        .result-summary.healthy {
+            background: rgba(16, 185, 129, 0.05);
+            border-left: 4px solid var(--success);
+            color: #065F46;
+        }
+
+        .result-summary.warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-left: 4px solid var(--warning);
+            color: #78350F;
+        }
+
+        .result-summary.danger {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 4px solid var(--danger);
+            color: #7F1D1D;
+        }
+
+        .result-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg-main);
+            border-radius: 10px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .metric-value.positive {
+            color: var(--success);
+        }
+
+        .metric-value.negative {
+            color: var(--danger);
+        }
+
+        .metric-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+
+        .secondary-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .metric-card-small {
+            background: var(--bg-main);
+            border-radius: 8px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .metric-card-small .metric-label {
+            font-size: 0.75rem;
+        }
+
+        .metric-card-small .metric-value {
+            font-size: 1.5rem;
+        }
+
+        .distribution-bar {
+            margin-bottom: 2rem;
+        }
+
+        .distribution-bar h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .bar-container {
+            height: 40px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .bar-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+
+        .bar-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .details-section {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .details-header {
+            padding: 1rem;
+            background: var(--bg-main);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .details-header:hover {
+            background: #EEEFF5;
+        }
+
+        .details-header.open {
+            background: var(--bg-main);
+        }
+
+        .details-content {
+            display: none;
+            padding: 1rem;
+            background: var(--bg-card);
+        }
+
+        .details-content.open {
+            display: block;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            gap: 1rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .detail-value.cost {
+            color: var(--danger);
+        }
+
+        .result-summary-box {
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .summary-item h3 {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-item .value {
+            font-size: 1.875rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .summary-item .value.positive {
+            color: var(--success);
+        }
+
+        .summary-item .value.negative {
+            color: var(--danger);
+        }
+
+        .chips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chip {
+            padding: 1rem;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .chip-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .chip-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+            padding: 0.625rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-text {
+            background: var(--bg-main);
+            color: var(--primary);
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+
+        .btn-text:hover {
+            background: #EEEFF5;
+        }
+
+        /* ============================================= TAB CONTENT ============================================= */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .history-empty {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            padding: 1rem;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-meta {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        .comparison-table thead {
+            background: var(--bg-main);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tbody tr:hover {
+            background: var(--bg-main);
+        }
+
+        /* ============================================= RESPONSIVE ============================================= */
+        @media (max-width: 1200px) {
+            .marketplace-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .result-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .secondary-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .chips {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-nav {
+                display: none;
+            }
+
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field-row {
+                grid-template-columns: 1fr;
+            }
+
+            .marketplace-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .result-summary-box {
+                grid-template-columns: 1fr;
+            }
+
+            .chips {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .form-card,
+            .result-card {
+                padding: 1.5rem;
+            }
+
+            .marketplace-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .result-metrics {
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .metric-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .metric-label {
+                font-size: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .metric-value {
+                font-size: 1.75rem;
+            }
+
+            .secondary-metrics {
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .metric-card-small {
+                padding: 1rem 0.75rem;
+            }
+
+            .metric-card-small .metric-value {
+                font-size: 1.25rem;
+            }
+
+            .detail-row {
+                padding: 0.75rem 0;
+                font-size: 0.8125rem;
+                flex-wrap: wrap;
+            }
+
+            .detail-label,
+            .detail-value {
+                word-break: break-word;
+            }
+
+            .distribution-bar h3 {
+                font-size: 0.8rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .bar-legend {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .legend-item {
+                font-size: 0.75rem;
+            }
+
+            .chips {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .placeholder-section {
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-brand">
+                <div class="hise-logo">H</div>
+                <div class="header-title">
+                    <h1>Calculadora de Marketplace</h1>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <button class="nav-item active" onclick="switchTab('calculator', this)">Calculadora</button>
+                <button class="nav-item" onclick="switchTab('compare', this)">Comparar canais</button>
+                <button class="nav-item" onclick="switchTab('history', this)">Histórico</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <div class="tab-content active" id="calculator-tab">
+            <div class="calculator-grid">
+                <!-- COLUNA ESQUERDA: FORMULÁRIO -->
+                <div class="form-card">
+                    <div class="form-title">Dados do Produto</div>
+
+                    <form id="pricing-form">
+                        <!-- SELEÇÃO DE MARKETPLACE -->
+                        <div class="form-group">
+                            <label class="form-group-title">Marketplace</label>
+                            <div class="marketplace-selector" id="marketplace-selector">
+                                <button type="button" class="marketplace-option" data-marketplace="mercadolivre"><span class="marketplace-dot" style="background: #FFE600;"></span><span>Mercado Livre</span></button>
+                                <button type="button" class="marketplace-option" data-marketplace="shopee"><span class="marketplace-dot" style="background: #EE4E2E;"></span><span>Shopee</span></button>
+                                <button type="button" class="marketplace-option" data-marketplace="shein"><span class="marketplace-dot" style="background: #000000;"></span><span>Shein</span></button>
+                                <button type="button" class="marketplace-option" data-marketplace="tiktokshop"><span class="marketplace-dot" style="background: #000000;"></span><span>TikTok Shop</span></button>
+                            </div>
+                        </div>
+
+                        <!-- CAMPOS BÁSICOS -->
+                        <div class="form-group">
+                            <label class="form-group-title">Valores Básicos</label>
+                            <div class="field-row">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Preço de Venda (R$)
+                                        <span class="tooltip-icon" data-tooltip="Valor pelo qual você venderá o produto">?</span>
+                                    </label>
+                                    <input type="number" id="price_sale" name="price_sale" min="0" step="0.01" placeholder="0,00">
+                                    <span class="field-error">Preço deve ser maior que 0</span>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label">
+                                        Custo do Produto (R$)
+                                        <span class="tooltip-icon" data-tooltip="Custo de compra ou produção">?</span>
+                                    </label>
+                                    <input type="number" id="cost_product" name="cost_product" min="0" step="0.01" placeholder="0,00">
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Quantidade
+                                        <span class="tooltip-icon" data-tooltip="Quantas unidades você venderá">?</span>
+                                    </label>
+                                    <input type="number" id="quantity" name="quantity" min="1" step="1" value="1">
+                                </div>
+                                <div class="field">
+                                    <label class="field-label">
+                                        Peso (gramas)
+                                        <span class="tooltip-icon" data-tooltip="Necessário para calcular taxas por peso">?</span>
+                                    </label>
+                                    <input type="number" id="weight" name="weight" min="0" step="1" placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CAMPOS ESPECÍFICOS DO MARKETPLACE -->
+                        <div id="marketplace-specific-fields" class="form-group"></div>
+
+                        <!-- CUSTOS -->
+                        <div class="form-group">
+                            <label class="form-group-title">Custos Operacionais</label>
+                            <div class="field-row">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Operacional (R$)
+                                        <span class="tooltip-icon" data-tooltip="Despesas de processamento">?</span>
+                                    </label>
+                                    <input type="number" id="cost_operational" name="cost_operational" min="0" step="0.01" value="0">
+                                </div>
+                                <div class="field">
+                                    <label class="field-label">
+                                        Embalagem (R$)
+                                        <span class="tooltip-icon" data-tooltip="Custo do material de embalagem">?</span>
+                                    </label>
+                                    <input type="number" id="cost_packaging" name="cost_packaging" min="0" step="0.01" value="0">
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Etiqueta (R$)
+                                        <span class="tooltip-icon" data-tooltip="Custo para imprimir etiquetas">?</span>
+                                    </label>
+                                    <input type="number" id="cost_label" name="cost_label" min="0" step="0.01" value="0">
+                                </div>
+                                <div class="field">
+                                    <label class="field-label">
+                                        Frete Vendedor (R$)
+                                        <span class="tooltip-icon" data-tooltip="Custo de frete que você absorve">?</span>
+                                    </label>
+                                    <input type="number" id="freight_seller" name="freight_seller" min="0" step="0.01" value="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- REGIME TRIBUTÁRIO -->
+                        <div class="form-group">
+                            <label class="form-group-title">Regime Tributário</label>
+                            <div class="field-row single">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Tipo de Empresa
+                                        <span class="tooltip-icon" data-tooltip="Seu regime de tributação">?</span>
+                                    </label>
+                                    <select id="company_type" name="company_type">
+                                        <option value="simples">Simples Nacional</option>
+                                        <option value="mei">MEI</option>
+                                        <option value="lucro_presumido">Lucro Presumido</option>
+                                        <option value="lucro_real">Lucro Real</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="field-row single">
+                                <div class="field">
+                                    <label class="field-label">
+                                        Imposto (%)
+                                        <span class="tooltip-icon" data-tooltip="Percentual de imposto sobre a venda. Consulte seu contador para confirmar a alíquota aplicável ao seu regime">?</span>
+                                    </label>
+                                    <input type="number" id="tax_percent" name="tax_percent" min="0" max="100" step="0.1" value="15">
+                                    <div class="field-help-text">Consulte seu contador para confirmar a alíquota aplicável ao seu regime</div>
+                                    <div id="mei_warning" class="field-help-text" style="display: none; color: #EF4444;">MEI: DAS fixo mensal, sem % sobre venda</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CAMPOS AVANÇADOS -->
+                        <div class="collapsible-section">
+                            <button type="button" class="collapsible-header" onclick="toggleCollapsible(this)">
+                                Campos Avançados
+                                <span>▼</span>
+                            </button>
+                            <div class="collapsible-content">
+                                <div class="form-group">
+                                    <div class="field-row">
+                                        <div class="field">
+                                            <label class="field-label">Desconto (R$)</label>
+                                            <input type="number" id="discount" name="discount" min="0" step="0.01" value="0">
+                                        </div>
+                                        <div class="field">
+                                            <label class="field-label">Cupom (R$)</label>
+                                            <input type="number" id="coupon" name="coupon" min="0" step="0.01" value="0">
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field">
+                                            <label class="field-label">CAC (R$)</label>
+                                            <input type="number" id="cac" name="cac" min="0" step="0.01" value="0">
+                                        </div>
+                                        <div class="field">
+                                            <label class="field-label">Devolução (R$)</label>
+                                            <input type="number" id="cost_refund" name="cost_refund" min="0" step="0.01" value="0">
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field">
+                                            <label class="field-label">Custo Financeiro (R$)</label>
+                                            <input type="number" id="cost_financial" name="cost_financial" min="0" step="0.01" value="0">
+                                        </div>
+                                        <div class="field">
+                                            <label class="field-label">Despesas Fixas (R$)</label>
+                                            <input type="number" id="fixed_expenses" name="fixed_expenses" min="0" step="0.01" value="0">
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row">
+                                        <div class="field">
+                                            <label class="field-label">Meta de Lucro (%)</label>
+                                            <input type="number" id="profit_goal" name="profit_goal" min="0" max="100" step="0.1" value="10">
+                                        </div>
+                                        <div class="field">
+                                            <label class="field-label">Margem Desejada (%)</label>
+                                            <input type="number" id="margin_desired" name="margin_desired" min="0" max="100" step="0.1" value="25">
+                                        </div>
+                                    </div>
+
+                                    <div class="field-row single">
+                                        <div class="field">
+                                            <label class="field-label">Observações</label>
+                                            <input type="text" id="notes" name="notes" placeholder="Ex: Promoção Black Friday...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" onclick="performCalculation()">Calcular</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- COLUNA DIREITA: RESULTADO -->
+                <div class="result-card">
+                    <div id="result-panel"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: COMPARAR CANAIS -->
+        <div class="tab-content" id="compare-tab">
+            <div class="form-card">
+                <div class="form-title">Comparação de Todos os Canais</div>
+                <div id="comparison-container" class="placeholder-section">
+                    Preencha o formulário e clique em "Calcular" para ver a comparação
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA: HISTÓRICO -->
+        <div class="tab-content" id="history-tab">
+            <div class="form-card">
+                <div class="form-title">Histórico de Cálculos</div>
+                <button class="btn btn-secondary" onclick="clearHistory()" style="margin-bottom: 1.5rem;">Limpar Histórico</button>
+                <ul class="history-list" id="history-list"></ul>
+                <div class="history-empty" id="history-empty">Nenhum cálculo salvo ainda</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ============================================================
+           SAFE LOCALSTORAGE WRAPPER
+           ============================================================ */
+        const safeStorage = {
+            getItem(key) {
+                try {
+                    return localStorage.getItem(key);
+                } catch (e) {
+                    return null;
+                }
+            },
+            setItem(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (e) {
+                    // Silently fail if localStorage not available
+                }
+            },
+            removeItem(key) {
+                try {
+                    localStorage.removeItem(key);
+                } catch (e) {
+                    // Silently fail if localStorage not available
+                }
+            }
+        };
+
+        /* ============================================================
+           CHANNELS.JS - All marketplace definitions
+           ============================================================ */
+        const CHANNELS = {
+            mercadolivre: {
+                id: 'mercadolivre', name: 'Mercado Livre', icon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#FFD600"/><ellipse cx="35" cy="50" rx="8" ry="12" fill="#003DA5"/><ellipse cx="65" cy="50" rx="8" ry="12" fill="#003DA5"/><path d="M38 45 Q50 55, 62 45" stroke="#003DA5" stroke-width="2" fill="none"/></svg>',
+                specificFields: [
+                    { type: 'select', id: 'ml_ad_type', label: 'Tipo de Anúncio', tooltip: 'Grátis: 0% comissão (60 dias iniciais, baixa visibilidade) | Clássico: 10-14% comissão (padrão 12%, recomendado) | Premium: 15-19% comissão (padrão 17%, com parcelamento sem juros)', default: 'classico', options: [
+                        { value: 'gratis', label: 'Grátis (60 dias)' },
+                        { value: 'classico', label: 'Clássico (12%)' },
+                        { value: 'premium', label: 'Premium (17%)' }
+                    ]}
+                ],
+                calculateChannelCosts(inputs, adType = 'classico', commissionPercent = 12) {
+                    const salePrice = parseFloat(inputs.price_sale) || 0;
+                    let costs = { commission: 0, commissionPercent: 0, fixedFee: 0, freight: 0 };
+                    if (adType !== 'gratis') costs.commissionPercent = commissionPercent;
+                    costs.commission = (salePrice * costs.commissionPercent) / 100;
+                    if ((adType === 'classico' || adType === 'premium') && salePrice < 79) {
+                        if (salePrice < 12.50) costs.fixedFee = salePrice * 0.5;
+                        else if (salePrice < 29) costs.fixedFee = 6.25;
+                        else if (salePrice < 50) costs.fixedFee = 6.50;
+                        else if (salePrice < 79) costs.fixedFee = 6.75;
+                    }
+                    if (inputs.ml_free_freight_toggle === true) costs.freight = parseFloat(inputs.freight_seller) || 0;
+                    return costs;
+                }
+            },
+            shopee: {
+                id: 'shopee', name: 'Shopee', icon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#EE4E2E"/><path d="M32 40 L32 65 Q32 72, 40 72 L60 72 Q68 72, 68 65 L68 40 M38 40 L38 32 M50 40 L50 28 M62 40 L62 32 M38 32 L62 32 M50 32 L56 24 L44 24" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+                specificFields: [
+                    { type: 'checkbox', id: 'shopee_pix_paid', label: 'Cliente pagou via Pix', tooltip: 'Aplica subsídio Pix' }
+                ],
+                calculateChannelCosts(inputs, pixPaid = false) {
+                    const salePrice = parseFloat(inputs.price_sale) || 0;
+                    let costs = { commission: 0, commissionPercent: 0, fixedFee: 0, pixSubsidy: 0, freight: 0 };
+                    if (salePrice < 79.99) { costs.commissionPercent = 20; costs.fixedFee = 4; }
+                    else if (salePrice < 99.99) { costs.commissionPercent = 14; costs.fixedFee = 16; }
+                    else if (salePrice < 199.99) { costs.commissionPercent = 14; costs.fixedFee = 20; }
+                    else { costs.commissionPercent = 14; costs.fixedFee = 26; }
+                    costs.commission = (salePrice * costs.commissionPercent) / 100;
+                    if (pixPaid) {
+                        if (salePrice >= 80 && salePrice < 499.99) costs.pixSubsidy = (salePrice * 5) / 100;
+                        else if (salePrice >= 499.99) costs.pixSubsidy = (salePrice * 8) / 100;
+                    }
+                    costs.freight = costs.pixSubsidy;
+                    return costs;
+                }
+            },
+            shein: {
+                id: 'shein', name: 'Shein', icon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="#000000" rx="15"/><text x="50" y="70" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">S</text></svg>',
+                specificFields: [],
+                calculateChannelCosts(inputs) {
+                    const salePrice = parseFloat(inputs.price_sale) || 0;
+                    const weight = parseFloat(inputs.weight) || 0;
+                    return {
+                        commission: (salePrice * 20) / 100, commissionPercent: 20,
+                        fixedFee: weight > 400 ? 5 : 0,
+                        freight: parseFloat(inputs.freight_seller) || 0
+                    };
+                }
+            },
+            tiktokshop: {
+                id: 'tiktokshop', name: 'TikTok Shop', icon: '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#000000"/><path d="M45 30 L45 60 C45 68, 40 72, 35 72 C28 72, 22 68, 22 60 C22 53, 28 47, 35 47 L40 47 L40 38 C35 38, 30 39, 26 42" stroke="#25F4EE" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M55 30 L55 60 C55 68, 60 72, 65 72 C72 72, 78 68, 78 60 C78 53, 72 47, 65 47 L60 47 L60 38 C65 38, 70 39, 74 42" stroke="#FF0050" stroke-width="3" fill="none" stroke-linecap="round"/></svg>',
+                specificFields: [
+                    { type: 'checkbox', id: 'tiktok_new_seller', label: 'Loja nova (isenção comissão)', tooltip: 'Isenção de comissão durante os primeiros 60 dias. Quando ativado, a comissão não é cobrada' },
+                    { type: 'checkbox', id: 'tiktok_free_freight', label: 'Programa de frete grátis', tooltip: 'Quando ativado: cobra 6% como taxa do programa. Quando desativado: nenhum custo de frete' },
+                    { type: 'checkbox', id: 'tiktok_affiliates', label: 'Programa de afiliados', tooltip: 'Com comissão de afiliado' },
+                    { type: 'number', id: 'tiktok_affiliate_percent', label: 'Comissão de Afiliado (%)', tooltip: 'Percentual de comissão para afiliados (padrão 5%)', min: 0, max: 20, default: 5, step: 0.1 }
+                ],
+                calculateChannelCosts(inputs, newSeller = false, freeFreight = false, affiliatePercent = 0) {
+                    const salePrice = parseFloat(inputs.price_sale) || 0;
+                    const quantity = parseFloat(inputs.quantity) || 1;
+                    let costs = { commission: 0, commissionPercent: 0, fixedFee: 0, freight: 0, affiliates: 0 };
+                    if (!newSeller) {
+                        if (salePrice < 50) {
+                            costs.commissionPercent = 10;
+                            costs.commission = (salePrice * 10) / 100;
+                            costs.fixedFee = 4 * quantity;
+                        }
+                        else {
+                            costs.commissionPercent = 6;
+                            costs.commission = (salePrice * 6) / 100;
+                            costs.fixedFee = 6 * quantity;
+                        }
+                    }
+                    // Frete Grátis: quando ativado, cobra 6% do valor do pedido
+                    // Quando desativado, não há frete cobrado (assume-se que o vendedor não usa este programa)
+                    costs.freight = freeFreight ? (salePrice * 6) / 100 : 0;
+                    costs.affiliates = affiliatePercent > 0 ? (salePrice * affiliatePercent) / 100 : 0;
+                    return costs;
+                }
+            }
+        };
+
+        function getChannel(id) { return CHANNELS[id]; }
+        function getAllChannels() { return Object.values(CHANNELS); }
+
+        /* ============================================================
+           ENGINE.JS - Calculation logic
+           ============================================================ */
+        function formatCurrency(value) {
+            return Math.round(parseFloat(value) * 100) / 100;
+        }
+
+        function calculateCosts(channelId, inputs) {
+            const channel = getChannel(channelId);
+            if (!channel) return null;
+            const salePrice = parseFloat(inputs.price_sale) || 0;
+            if (salePrice <= 0) return null;
+
+            const productCost = parseFloat(inputs.cost_product) || 0;
+            let marketplaceCosts = {};
+
+            if (channelId === 'nuvemshop') {
+                const gatewayFee = parseFloat(inputs.nuvemshop_gateway_fee || 4.99);
+                marketplaceCosts = channel.calculateChannelCosts(inputs, gatewayFee);
+            } else if (channelId === 'mercadolivre') {
+                const adType = inputs.ml_ad_type || 'classico';
+                const commissionMap = { gratis: 0, classico: 12, premium: 17 };
+                const commissionPercent = commissionMap[adType] || 12;
+                marketplaceCosts = channel.calculateChannelCosts(inputs, adType, commissionPercent);
+            } else if (channelId === 'shopee') {
+                const pixPaid = inputs.shopee_pix_paid === true;
+                marketplaceCosts = channel.calculateChannelCosts(inputs, pixPaid);
+            } else if (channelId === 'shein') {
+                marketplaceCosts = channel.calculateChannelCosts(inputs);
+            } else if (channelId === 'tiktokshop') {
+                const newSeller = inputs.tiktok_new_seller === true;
+                const freeFreight = inputs.tiktok_free_freight === true;
+                const hasAffiliates = inputs.tiktok_affiliates === true;
+                const affiliatePercent = hasAffiliates ? parseFloat(inputs.tiktok_affiliate_percent || 0) : 0;
+                marketplaceCosts = channel.calculateChannelCosts(inputs, newSeller, freeFreight, affiliatePercent);
+            }
+
+            let taxValue = 0;
+            const companyType = inputs.company_type || 'simples';
+            const taxPercent = parseFloat(inputs.tax_percent || 15);
+            if (companyType !== 'mei') taxValue = (salePrice * taxPercent) / 100;
+
+            const costOperational = parseFloat(inputs.cost_operational || 0);
+            const costPackaging = parseFloat(inputs.cost_packaging || 0);
+            const costLabel = parseFloat(inputs.cost_label || 0);
+            const discount = parseFloat(inputs.discount || 0);
+            const coupon = parseFloat(inputs.coupon || 0);
+            const cac = parseFloat(inputs.cac || 0);
+            const costRefund = parseFloat(inputs.cost_refund || 0);
+            const costFinancial = parseFloat(inputs.cost_financial || 0);
+            const fixedExpenses = parseFloat(inputs.fixed_expenses || 0);
+
+            const variableCosts = productCost + marketplaceCosts.commission + marketplaceCosts.fixedFee + (marketplaceCosts.freight || 0) + (marketplaceCosts.affiliates || 0) + (marketplaceCosts.pixSubsidy || 0) + (marketplaceCosts.gatewayFee || 0) + taxValue + costOperational + costPackaging + costLabel + discount + coupon + cac + costRefund + costFinancial;
+            const totalCost = variableCosts + fixedExpenses;
+
+            return {
+                productCost: formatCurrency(productCost),
+                marketplace: { commission: formatCurrency(marketplaceCosts.commission), commissionPercent: marketplaceCosts.commissionPercent, fixedFee: formatCurrency(marketplaceCosts.fixedFee), freight: formatCurrency(marketplaceCosts.freight || 0), affiliates: formatCurrency(marketplaceCosts.affiliates || 0), pixSubsidy: formatCurrency(marketplaceCosts.pixSubsidy || 0), gatewayFee: formatCurrency(marketplaceCosts.gatewayFee || 0) },
+                tax: { value: formatCurrency(taxValue), percent: taxPercent, companyType: companyType },
+                operational: { operational: formatCurrency(costOperational), packaging: formatCurrency(costPackaging), label: formatCurrency(costLabel), discount: formatCurrency(discount), coupon: formatCurrency(coupon), cac: formatCurrency(cac), refund: formatCurrency(costRefund), financial: formatCurrency(costFinancial) },
+                fixedExpenses: formatCurrency(fixedExpenses),
+                variableCosts: formatCurrency(variableCosts),
+                totalCost: formatCurrency(totalCost),
+                breakdown: { productCost, commission: marketplaceCosts.commission, fixedFee: marketplaceCosts.fixedFee, freight: marketplaceCosts.freight || 0, tax: taxValue, operational: costOperational, packaging: costPackaging, label: costLabel, discount, coupon, cac, refund: costRefund, financial: costFinancial, fixedExpenses },
+                salePrice: salePrice
+            };
+        }
+
+        function calculateResults(channelId, inputs, costs) {
+            if (!costs) return null;
+            const salePrice = parseFloat(inputs.price_sale) || 0;
+            const quantity = parseFloat(inputs.quantity) || 1;
+            const profitGoal = parseFloat(inputs.profit_goal || 10);
+            const marginDesired = parseFloat(inputs.margin_desired || 25);
+
+            const netProfit = salePrice - costs.totalCost;
+            const netMargin = salePrice > 0 ? (netProfit / salePrice) * 100 : 0;
+            const totalProfit = netProfit * quantity;
+            const variableProfit = salePrice - costs.variableCosts;
+            const contributionMargin = salePrice > 0 ? (variableProfit / salePrice) * 100 : 0;
+            let breakEvenUnits = 0;
+            if (netProfit > 0 && costs.fixedExpenses > 0) breakEvenUnits = Math.ceil(costs.fixedExpenses / netProfit);
+
+            let status;
+            if (netMargin < 0) status = 'danger';
+            else if (netMargin < profitGoal) status = 'warning';
+            else status = 'healthy';
+
+            const minPrice = findPriceByBisection(channelId, inputs, 0, 'min');
+            const idealPrice = findPriceByBisection(channelId, inputs, marginDesired, 'ideal');
+
+            return {
+                netProfit: formatCurrency(netProfit),
+                netMargin: formatCurrency(netMargin),
+                totalProfit: formatCurrency(totalProfit),
+                contributionMargin: formatCurrency(contributionMargin),
+                breakEvenUnits: breakEvenUnits,
+                minPrice: formatCurrency(minPrice),
+                idealPrice: formatCurrency(idealPrice),
+                status: status,
+                quantity: quantity,
+                salePrice: salePrice,
+                costSummary: costs
+            };
+        }
+
+        function findPriceByBisection(channelId, inputs, targetMargin, type = 'ideal') {
+            const productCost = parseFloat(inputs.cost_product) || 0;
+            let low = productCost * 1.001;
+            let high = productCost * 10;
+            if (type === 'min') high = productCost * 5;
+            const tolerance = 0.01;
+            let iterations = 0;
+
+            while (high - low > tolerance && iterations < 50) {
+                const mid = (low + high) / 2;
+                const testInputs = { ...inputs, price_sale: mid };
+                const testCosts = calculateCosts(channelId, testInputs);
+                if (!testCosts) break;
+                const testNetProfit = mid - testCosts.totalCost;
+                const testMargin = mid > 0 ? (testNetProfit / mid) * 100 : 0;
+                if (testMargin < targetMargin) low = mid;
+                else high = mid;
+                iterations++;
+            }
+            return formatCurrency((low + high) / 2);
+        }
+
+        /* ============================================================
+           UI.JS - Rendering functions
+           ============================================================ */
+        function formatBRL(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        function formatPercent(value) {
+            return (Math.round(value * 100) / 100).toFixed(2) + '%';
+        }
+
+        function renderResultPanel(channelId, inputs, costs, results) {
+            const panel = document.getElementById('result-panel');
+
+            if (!results) {
+                panel.innerHTML = '<div class="placeholder-section">Preencha o formulário e clique em Calcular</div>';
+                return;
+            }
+
+            const channel = getChannel(channelId);
+            const statusMap = {
+                healthy: { class: 'healthy', text: '✓ Lucro saudável' },
+                warning: { class: 'warning', text: '⚠ Lucro baixo' },
+                danger: { class: 'danger', text: '✗ Prejuízo' }
+            };
+            const statusInfo = statusMap[results.status] || statusMap.warning;
+
+            let summaryHtml = '';
+            if (results.status === 'danger') {
+                summaryHtml = `<div class="result-summary danger"><strong>Operação em prejuízo.</strong> Aumente o preço para ${formatBRL(results.minPrice)} ou reduza custos.</div>`;
+            } else {
+                summaryHtml = `<div class="result-summary healthy"><strong>Margem de ${formatPercent(results.netMargin)}</strong> gerando ${formatBRL(results.netProfit)} por unidade. Ao vender ${results.quantity} unidade(s), você ganhará ${formatBRL(results.totalProfit)} de lucro líquido.</div>`;
+            }
+
+            const costPercentage = (costs.productCost / results.salePrice) * 100;
+            const taxesPercentage = ((costs.marketplace.commission + costs.marketplace.fixedFee + costs.marketplace.freight + costs.marketplace.gatewayFee) / results.salePrice) * 100;
+            const taxPercentage = (costs.tax.value / results.salePrice) * 100;
+            const operationPercentage = ((costs.operational.operational + costs.operational.packaging + costs.operational.label + costs.operational.discount + costs.operational.coupon + costs.operational.cac + costs.operational.refund + costs.operational.financial + costs.fixedExpenses) / results.salePrice) * 100;
+            const profitPercentage = 100 - costPercentage - taxesPercentage - taxPercentage - operationPercentage;
+
+            const barSegments = [
+                { value: Math.max(0, costPercentage), color: '#3B82F6', label: 'Custo Prod.' },
+                { value: Math.max(0, taxesPercentage), color: '#EF4444', label: 'Taxas MP' },
+                { value: Math.max(0, taxPercentage), color: '#F59E0B', label: 'Imposto' },
+                { value: Math.max(0, operationPercentage), color: '#8B5CF6', label: 'Operação' },
+                { value: Math.max(0, profitPercentage), color: '#10B981', label: 'Lucro' }
+            ].filter(s => s.value > 0.5);
+
+            let barHTML = '<div class="bar-container">';
+            barSegments.forEach(seg => {
+                barHTML += `<div class="bar-segment" style="width: ${seg.value}%; background: ${seg.color};">${seg.value > 5 ? formatPercent(seg.value) : ''}</div>`;
+            });
+            barHTML += '</div><div class="bar-legend">';
+            barSegments.forEach(seg => {
+                barHTML += `<div class="legend-item"><div class="legend-color" style="background: ${seg.color};"></div><span>${seg.label}</span></div>`;
+            });
+            barHTML += '</div>';
+
+            let html = `
+                <div class="result-header">
+                    <div class="result-header-info">
+                        <span class="result-marketplace-icon">${channel.icon}</span>
+                        <div class="result-title">
+                            <h2>${channel.name}</h2>
+                        </div>
+                    </div>
+                    <div class="result-status ${statusInfo.class}">${statusInfo.text}</div>
+                </div>
+
+                ${summaryHtml}
+
+                <div class="result-metrics">
+                    <div class="metric-card">
+                        <div class="metric-label">
+                            Lucro Líquido
+                            <span class="tooltip-icon" data-tooltip="Valor total ganho por unidade vendida (Preço de venda - Custos totais)">?</span>
+                        </div>
+                        <div class="metric-value ${results.netProfit >= 0 ? 'positive' : 'negative'}">${formatBRL(results.netProfit)}</div>
+                        <div class="metric-subtitle">por unidade</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">
+                            Margem Líquida
+                            <span class="tooltip-icon" data-tooltip="Percentual de lucro em relação ao preço de venda. Quanto maior, melhor o rendimento da operação">?</span>
+                        </div>
+                        <div class="metric-value ${results.netMargin >= 0 ? 'positive' : 'negative'}">${formatPercent(results.netMargin)}</div>
+                        <div class="metric-subtitle">sobre a venda</div>
+                    </div>
+                </div>
+
+                <div class="secondary-metrics">
+                    <div class="metric-card-small">
+                        <div class="metric-label">
+                            Preço Mínimo
+                            <span class="tooltip-icon" data-tooltip="Preço onde a margem é 0% (ponto de equilíbrio - você não ganha nem perde)">?</span>
+                        </div>
+                        <div class="metric-value">${formatBRL(results.minPrice)}</div>
+                    </div>
+                    <div class="metric-card-small">
+                        <div class="metric-label">
+                            Preço Ideal
+                            <span class="tooltip-icon" data-tooltip="Preço que atinge a margem desejada informada no formulário">?</span>
+                        </div>
+                        <div class="metric-value">${formatBRL(results.idealPrice)}</div>
+                    </div>
+                </div>
+
+                <div class="distribution-bar">
+                    <h3>Para onde vai cada R$ 1,00 vendido?</h3>
+                    ${barHTML}
+                </div>
+
+                <div class="details-section">
+                    <div class="details-header" onclick="toggleDetails(this)">
+                        RECEITA
+                        <span>▼</span>
+                    </div>
+                    <div class="details-content">
+                        <div class="detail-row">
+                            <span class="detail-label">
+                                Faturamento Bruto
+                                <span class="tooltip-icon" data-tooltip="Valor total que você receberá pela venda">?</span>
+                            </span>
+                            <span class="detail-value">${formatBRL(results.salePrice)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-header" onclick="toggleDetails(this)">
+                        TAXAS DO MARKETPLACE
+                        <span>▼</span>
+                    </div>
+                    <div class="details-content">
+                        ${costs.marketplace.commission > 0 ? `<div class="detail-row"><span class="detail-label">Comissão (${costs.marketplace.commissionPercent}%) <span class="tooltip-icon" data-tooltip="Percentual que o marketplace cobra sobre a venda">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.commission)}</span></div>` : ''}
+                        ${costs.marketplace.fixedFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Fixa <span class="tooltip-icon" data-tooltip="Valor fixo cobrado pelo marketplace">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.fixedFee)}</span></div>` : ''}
+                        ${costs.marketplace.freight > 0 ? `<div class="detail-row"><span class="detail-label">Frete <span class="tooltip-icon" data-tooltip="Custo de envio da mercadoria">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.freight)}</span></div>` : ''}
+                        ${costs.marketplace.gatewayFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Gateway <span class="tooltip-icon" data-tooltip="Taxa do gateway de pagamento (ex: Mercado Pago)">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.gatewayFee)}</span></div>` : ''}
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-header" onclick="toggleDetails(this)">
+                        IMPOSTO
+                        <span>▼</span>
+                    </div>
+                    <div class="details-content">
+                        ${costs.tax.value > 0 ? `<div class="detail-row"><span class="detail-label">Imposto (${costs.tax.percent}%) <span class="tooltip-icon" data-tooltip="Imposto sobre a venda de acordo com seu regime tributário">?</span></span><span class="detail-value cost">${formatBRL(costs.tax.value)}</span></div>` : ''}
+                    </div>
+                </div>
+
+                <div class="details-section">
+                    <div class="details-header" onclick="toggleDetails(this)">
+                        CUSTOS DO PRODUTO E OPERAÇÃO
+                        <span>▼</span>
+                    </div>
+                    <div class="details-content">
+                        <div class="detail-row"><span class="detail-label">Custo do Produto <span class="tooltip-icon" data-tooltip="Valor que você paga para comprar/produzir o item">?</span></span><span class="detail-value cost">${formatBRL(costs.productCost)}</span></div>
+                        ${costs.operational.packaging > 0 ? `<div class="detail-row"><span class="detail-label">Embalagem <span class="tooltip-icon" data-tooltip="Custo de embalagem do produto">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.packaging)}</span></div>` : ''}
+                        ${costs.operational.label > 0 ? `<div class="detail-row"><span class="detail-label">Etiqueta <span class="tooltip-icon" data-tooltip="Custo de etiquetagem e identificação">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.label)}</span></div>` : ''}
+                        ${costs.operational.operational > 0 ? `<div class="detail-row"><span class="detail-label">Operacional <span class="tooltip-icon" data-tooltip="Custos operacionais gerais (aluguel, energia, etc)">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.operational)}</span></div>` : ''}
+                        ${costs.operational.discount > 0 ? `<div class="detail-row"><span class="detail-label">Desconto <span class="tooltip-icon" data-tooltip="Desconto oferecido no produto">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.discount)}</span></div>` : ''}
+                        ${costs.operational.coupon > 0 ? `<div class="detail-row"><span class="detail-label">Cupom <span class="tooltip-icon" data-tooltip="Valor de cupom de desconto">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.coupon)}</span></div>` : ''}
+                        ${costs.operational.cac > 0 ? `<div class="detail-row"><span class="detail-label">CAC <span class="tooltip-icon" data-tooltip="Custo de Aquisição do Cliente (publicidade/marketing)">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.cac)}</span></div>` : ''}
+                        ${costs.operational.refund > 0 ? `<div class="detail-row"><span class="detail-label">Devolução <span class="tooltip-icon" data-tooltip="Custo estimado de devoluções e reposições">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.refund)}</span></div>` : ''}
+                        ${costs.operational.financial > 0 ? `<div class="detail-row"><span class="detail-label">Financeiro <span class="tooltip-icon" data-tooltip="Custos financeiros (juros, taxas, etc)">?</span></span><span class="detail-value cost">${formatBRL(costs.operational.financial)}</span></div>` : ''}
+                        ${costs.fixedExpenses > 0 ? `<div class="detail-row"><span class="detail-label">Despesas Fixas <span class="tooltip-icon" data-tooltip="Despesas fixas rateadas por unidade vendida">?</span></span><span class="detail-value cost">${formatBRL(costs.fixedExpenses)}</span></div>` : ''}
+                    </div>
+                </div>
+
+                <div class="result-summary-box">
+                    <div class="summary-item">
+                        <h3>Custo Total</h3>
+                        <div class="value">${formatBRL(costs.totalCost)}</div>
+                    </div>
+                    <div class="summary-item">
+                        <h3>Lucro do Pedido</h3>
+                        <div class="value">${formatBRL(results.netProfit)}</div>
+                    </div>
+                </div>
+
+                <div class="chips">
+                    <div class="chip">
+                        <div class="chip-label">Margem de Contribuição</div>
+                        <div class="chip-value">${formatPercent(results.contributionMargin)}</div>
+                    </div>
+                    <div class="chip">
+                        <div class="chip-label">Lucro Total</div>
+                        <div class="chip-value">${formatBRL(results.totalProfit)}</div>
+                    </div>
+                    <div class="chip">
+                        <div class="chip-label">Ponto de Equilíbrio</div>
+                        <div class="chip-value">${results.breakEvenUnits > 0 ? results.breakEvenUnits : '—'}</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-text" onclick="copyResults('${channelId}', '${JSON.stringify(results).replace(/"/g, '&quot;')}')">Copiar</button>
+                    <button class="btn btn-text" onclick="saveCalc('${channelId}', '${JSON.stringify(results).replace(/"/g, '&quot;')}')">Salvar</button>
+                    <button class="btn btn-primary" onclick="showComparison('${JSON.stringify(getAllFormData()).replace(/"/g, '&quot;')}')">Comparar</button>
+                </div>
+            `;
+
+            panel.innerHTML = html;
+        }
+
+        /* ============================================================
+           APP.JS - Main application logic
+           ============================================================ */
+        let selectedMarketplace = null;
+        let calculationTimeout;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupMarketplaceSelector();
+            setupFormListeners();
+            updateHistoryUI();
+            restoreFormState();
+            setupMobileNav();
+        });
+
+        function setupMarketplaceSelector() {
+            const selector = document.getElementById('marketplace-selector');
+            selector.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    selectMarketplace(btn.dataset.marketplace);
+                });
+            });
+        }
+
+        function selectMarketplace(marketplaceId) {
+            selectedMarketplace = marketplaceId;
+            document.querySelectorAll('.marketplace-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.marketplace === marketplaceId);
+            });
+            updateMarketplaceFields();
+            triggerCalculation();
+        }
+
+        function updateMarketplaceFields() {
+            const fieldsContainer = document.getElementById('marketplace-specific-fields');
+            fieldsContainer.innerHTML = '';
+
+            if (!selectedMarketplace) return;
+
+            const channel = getChannel(selectedMarketplace);
+            if (selectedMarketplace === 'mercadolivre') {
+                const toggleHTML = `
+                    <div class="field-row single">
+                        <div class="field" style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="${selectedMarketplace}_free_freight_toggle" name="${selectedMarketplace}_free_freight_toggle">
+                            <label class="field-label" style="margin: 0;">
+                                Frete Grátis (Obrigatório acima de R$ 79)
+                            </label>
+                        </div>
+                    </div>
+                `;
+                fieldsContainer.innerHTML += toggleHTML;
+                document.getElementById(`${selectedMarketplace}_free_freight_toggle`).addEventListener('change', triggerCalculation);
+            }
+
+            if (channel?.specificFields) {
+                // Separar checkboxes para TikTok (Frete + Afiliados lado a lado)
+                const checkboxFields = channel.specificFields.filter(f => f.type === 'checkbox');
+                const otherFields = channel.specificFields.filter(f => f.type !== 'checkbox');
+
+                // Renderizar checkboxes
+                if (checkboxFields.length > 0) {
+                    if (selectedMarketplace === 'tiktokshop' && checkboxFields.length >= 2) {
+                        // Layout especial para TikTok: Loja nova em uma linha, Frete + Afiliados em outra linha lado a lado
+                        const newSellerField = checkboxFields.find(f => f.id === 'tiktok_new_seller');
+                        const otherCheckboxes = checkboxFields.filter(f => f.id !== 'tiktok_new_seller');
+
+                        // Layout otimizado: Seção com cards para cada opção
+                        let tiktokOptionsHTML = `
+                            <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: block;">Configurações Especiais do TikTok</div>
+                        `;
+
+                        checkboxFields.forEach((field) => {
+                            let cardColor = 'rgba(59, 130, 246, 0.05)';
+
+                            if (field.id === 'tiktok_new_seller') {
+                                cardColor = 'rgba(16, 185, 129, 0.05)';
+                            } else if (field.id === 'tiktok_free_freight') {
+                                cardColor = 'rgba(59, 130, 246, 0.05)';
+                            } else if (field.id === 'tiktok_affiliates') {
+                                cardColor = 'rgba(245, 158, 11, 0.05)';
+                            }
+
+                            tiktokOptionsHTML += `
+                                <div style="background: ${cardColor}; border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem;">
+                                    <label style="display: flex; align-items: center; gap: 0.5rem; flex: 1; margin: 0; cursor: pointer; user-select: none;">
+                                        <input type="checkbox" id="${field.id}" name="${field.id}" style="cursor: pointer; width: 18px; height: 18px;">
+                                        <span style="font-weight: 500; color: var(--text-primary); font-size: 0.9375rem;">${field.label}</span>
+                                    </label>
+                                </div>
+                            `;
+                        });
+
+                        tiktokOptionsHTML += `</div>`;
+
+                        // Criar elemento container e adicionar via appendChild (não usa innerHTML +=)
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = tiktokOptionsHTML;
+                        fieldsContainer.appendChild(tempDiv.firstElementChild);
+
+                        // Adicionar listeners
+                        checkboxFields.forEach(field => {
+                            const elem = document.getElementById(field.id);
+                            if (elem) {
+                                elem.addEventListener('change', triggerCalculation);
+                            }
+                        });
+                    } else {
+                        // Layout normal para outros marketplaces
+                        checkboxFields.forEach(field => {
+                            let fieldHTML = `
+                                <div class="field-row single">
+                                    <div class="field" style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="checkbox" id="${field.id}" name="${field.id}">
+                                        <label class="field-label" style="margin: 0;">${field.label}</label>
+                                    </div>
+                                </div>
+                            `;
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = fieldHTML;
+                            fieldsContainer.appendChild(tempDiv.firstElementChild);
+
+                            const elem = document.getElementById(field.id);
+                            if (elem) {
+                                elem.addEventListener('change', triggerCalculation);
+                            }
+                        });
+                    }
+                }
+
+                // Renderizar campo de Comissão de Afiliado dentro do bloco TikTok
+                if (selectedMarketplace === 'tiktokshop') {
+                    const affiliatePercentField = otherFields.find(f => f.id === 'tiktok_affiliate_percent');
+                    if (affiliatePercentField) {
+                        // Adicionar ao final da seção de configurações
+                        const configSection = fieldsContainer.querySelector('div[style*="background: var(--bg-main)"]');
+                        if (configSection) {
+                            const affiliateFieldHTML = `
+                                <div class="affiliate-percent-field" style="display: none; background: rgba(245, 158, 11, 0.05); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem;">
+                                    <label class="field-label" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                        ${affiliatePercentField.label}
+                                        <span class="tooltip-icon" data-tooltip="${affiliatePercentField.tooltip}">?</span>
+                                    </label>
+                                    <input type="number" id="${affiliatePercentField.id}" name="${affiliatePercentField.id}" min="${affiliatePercentField.min || 0}" value="${affiliatePercentField.default || 0}" step="0.1" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-family: inherit;">
+                                </div>
+                            `;
+                            const tempDiv2 = document.createElement('div');
+                            tempDiv2.innerHTML = affiliateFieldHTML;
+                            configSection.appendChild(tempDiv2.firstElementChild);
+
+                            // Adicionar listeners ao campo de comissão de afiliado
+                            const affiliateInput = document.getElementById(affiliatePercentField.id);
+                            if (affiliateInput) {
+                                affiliateInput.addEventListener('change', triggerCalculation);
+                                affiliateInput.addEventListener('input', triggerCalculation);
+                            }
+                        }
+                    }
+                }
+
+                // Renderizar outros campos (number, select)
+                otherFields.forEach(field => {
+                    let fieldHTML = '';
+                    if (field.type === 'number') {
+                        // Para TikTok: ocultar campo de comissão se afiliados desligados (já adicionado acima)
+                        if (selectedMarketplace === 'tiktokshop' && field.id === 'tiktok_affiliate_percent') {
+                            return; // Pular, já foi adicionado acima
+                        }
+
+                        const isAffiliatePercent = field.id === 'tiktok_affiliate_percent';
+                        const displayStyle = isAffiliatePercent && selectedMarketplace !== 'tiktokshop' ? 'display: none;' : '';
+                        const affiliateClass = isAffiliatePercent ? 'affiliate-percent-field' : '';
+
+                        fieldHTML = `
+                            <div class="field-row single ${affiliateClass}" style="${displayStyle}">
+                                <div class="field">
+                                    <label class="field-label">${field.label}<span class="tooltip-icon" data-tooltip="${field.tooltip}">?</span></label>
+                                    <input type="number" id="${field.id}" name="${field.id}" min="${field.min || 0}" value="${field.default || 0}" step="0.01">
+                                </div>
+                            </div>
+                        `;
+                    } else if (field.type === 'select') {
+                        fieldHTML = `
+                            <div class="field-row single">
+                                <div class="field">
+                                    <label class="field-label">${field.label}<span class="tooltip-icon" data-tooltip="${field.tooltip}">?</span></label>
+                                    <select id="${field.id}" name="${field.id}">
+                                        ${field.options.map(opt => `<option value="${opt.value}" ${opt.value === field.default ? 'selected' : ''}>${opt.label}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    fieldsContainer.innerHTML += fieldHTML;
+                    const elem = document.getElementById(field.id);
+                    if (elem) {
+                        elem.addEventListener('change', triggerCalculation);
+                        if (field.type === 'number') {
+                            elem.addEventListener('input', triggerCalculation);
+                        }
+                    }
+                });
+
+                // Para TikTok: mostrar/ocultar campo de comissão baseado no checkbox de afiliados
+                if (selectedMarketplace === 'tiktokshop') {
+                    const affiliatesCheckbox = document.getElementById('tiktok_affiliates');
+                    const affiliatePercentField = document.querySelector('.affiliate-percent-field');
+
+                    if (affiliatesCheckbox && affiliatePercentField) {
+                        // Função para atualizar visibilidade
+                        const updateAffiliateFieldVisibility = () => {
+                            if (affiliatesCheckbox.checked) {
+                                affiliatePercentField.style.display = 'block';
+                            } else {
+                                affiliatePercentField.style.display = 'none';
+                                // Zerar o valor quando desabilitar
+                                document.getElementById('tiktok_affiliate_percent').value = document.getElementById('tiktok_affiliate_percent').getAttribute('data-default') || 5;
+                            }
+                        };
+
+                        // Adicionar listener ao checkbox de afiliados
+                        affiliatesCheckbox.addEventListener('change', () => {
+                            updateAffiliateFieldVisibility();
+                            triggerCalculation();
+                        });
+
+                        // Atualizar visibilidade inicial
+                        updateAffiliateFieldVisibility();
+                    }
+                }
+            }
+        }
+
+        function setupFormListeners() {
+            const form = document.getElementById('pricing-form');
+            const inputs = form.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', triggerCalculation);
+                input.addEventListener('change', triggerCalculation);
+            });
+
+            document.getElementById('company_type')?.addEventListener('change', (e) => {
+                const companyType = e.target.value;
+                const taxPercentField = document.getElementById('tax_percent');
+                const meiWarning = document.getElementById('mei_warning');
+
+                if (companyType === 'mei') {
+                    taxPercentField.disabled = true;
+                    taxPercentField.value = '0';
+                    meiWarning.style.display = 'block';
+                } else {
+                    taxPercentField.disabled = false;
+                    meiWarning.style.display = 'none';
+                    if (companyType === 'simples') taxPercentField.value = '15';
+                    else if (companyType === 'lucro_presumido') taxPercentField.value = '18';
+                    else if (companyType === 'lucro_real') taxPercentField.value = '18';
+                }
+                triggerCalculation();
+            });
+        }
+
+        function triggerCalculation() {
+            clearTimeout(calculationTimeout);
+            calculationTimeout = setTimeout(() => {
+                performCalculation();
+                saveFormState();
+            }, 100);
+        }
+
+        function performCalculation() {
+            if (!selectedMarketplace) return;
+
+            const form = document.getElementById('pricing-form');
+            const formData = new FormData(form);
+            const inputs = Object.fromEntries(formData);
+            inputs.marketplace = selectedMarketplace;
+
+            // Process checkboxes - Garantir que sejam booleanos, não strings
+            ['ml_free_freight_toggle', 'shopee_pix_paid', 'tiktok_new_seller', 'tiktok_free_freight', 'tiktok_affiliates'].forEach(field => {
+                const elem = document.getElementById(field);
+                inputs[field] = elem ? (elem.checked === true) : false;
+            });
+            if (selectedMarketplace === 'tiktokshop') {
+            }
+
+            const errors = validateInputs(inputs);
+            if (Object.keys(errors).length > 0) {
+                document.querySelectorAll('.field.error').forEach(f => f.classList.remove('error'));
+                Object.keys(errors).forEach(fieldName => {
+                    const field = document.querySelector(`[name="${fieldName}"]`);
+                    if (field) {
+                        field.closest('.field')?.classList.add('error');
+                    }
+                });
+                renderResultPanel(null, {}, null, null);
+                return;
+            }
+
+            document.querySelectorAll('.field.error').forEach(f => f.classList.remove('error'));
+
+            try {
+                const costs = calculateCosts(selectedMarketplace, inputs);
+                if (!costs) return;
+                const results = calculateResults(selectedMarketplace, inputs, costs);
+                renderResultPanel(selectedMarketplace, inputs, costs, results);
+            } catch (e) {
+                console.error('Erro:', e);
+            }
+        }
+
+        function validateInputs(inputs) {
+            const errors = {};
+            const priceValue = parseFloat(inputs.price_sale);
+            if (!inputs.price_sale || priceValue <= 0) {
+                errors.price_sale = 'Preço deve ser maior que 0';
+            }
+            return errors;
+        }
+
+        function getAllFormData() {
+            const form = document.getElementById('pricing-form');
+            const formData = new FormData(form);
+            const inputs = Object.fromEntries(formData);
+            inputs.marketplace = selectedMarketplace;
+            return inputs;
+        }
+
+        function copyResults(channelId, resultsJson) {
+            try {
+                const results = JSON.parse(resultsJson.replace(/&quot;/g, '"'));
+                const text = `Marketplace: ${getChannel(channelId).name}\nPreço: ${formatBRL(results.salePrice)}\nMargem: ${formatPercent(results.netMargin)}\nLucro: ${formatBRL(results.netProfit)}`;
+                navigator.clipboard.writeText(text);
+                alert('✓ Copiado!');
+            } catch (e) {
+                alert('✗ Erro ao copiar');
+            }
+        }
+
+        function saveCalc(channelId, resultsJson) {
+            try {
+                const results = JSON.parse(resultsJson.replace(/&quot;/g, '"'));
+                const calc = {
+                    id: Date.now().toString(),
+                    name: document.getElementById('notes')?.value || `Cálculo de ${new Date().toLocaleDateString('pt-BR')}`,
+                    channel: getChannel(channelId).name,
+                    price: results.salePrice,
+                    margin: results.netMargin,
+                    date: new Date().toLocaleString('pt-BR'),
+                    data: getAllFormData(),
+                    results: results
+                };
+                let history = JSON.parse(safeStorage.getItem('calc_history') || '[]');
+                history.unshift(calc);
+                safeStorage.setItem('calc_history', JSON.stringify(history));
+                updateHistoryUI();
+                alert('✓ Cálculo salvo!');
+            } catch (e) {
+                alert('✗ Erro ao salvar');
+            }
+        }
+
+        function showComparison(inputsJson) {
+            try {
+                const inputs = JSON.parse(inputsJson.replace(/&quot;/g, '"'));
+                const comparisons = getAllChannels().map(channel => {
+                    const costs = calculateCosts(channel.id, inputs);
+                    if (!costs) return null;
+                    const results = calculateResults(channel.id, inputs, costs);
+                    if (!results) return null;
+                    return {
+                        icon: channel.icon,
+                        name: channel.name,
+                        price: formatBRL(results.salePrice),
+                        profit: formatBRL(results.netProfit),
+                        margin: formatPercent(results.netMargin)
+                    };
+                }).filter(Boolean).sort((a, b) => parseFloat(b.margin) - parseFloat(a.margin));
+
+                let html = `<table class="comparison-table"><thead><tr><th>Marketplace</th><th>Preço</th><th>Lucro</th><th>Margem</th></tr></thead><tbody>`;
+                comparisons.forEach(c => {
+                    html += `<tr><td>${c.icon} ${c.name}</td><td>${c.price}</td><td>${c.profit}</td><td>${c.margin}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+
+                document.getElementById('comparison-container').innerHTML = html;
+                switchTab('compare');
+            } catch (e) {
+                alert('✗ Erro na comparação');
+            }
+        }
+
+        function updateHistoryUI() {
+            const list = document.getElementById('history-list');
+            const empty = document.getElementById('history-empty');
+            const history = JSON.parse(safeStorage.getItem('calc_history') || '[]');
+
+            if (history.length === 0) {
+                list.innerHTML = '';
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+                list.innerHTML = history.map(item => `
+                    <li class="history-item">
+                        <div class="history-info">
+                            <div class="history-name">${item.name}</div>
+                            <div class="history-meta">
+                                <span>${item.channel}</span>
+                                <span>${formatBRL(item.price)}</span>
+                                <span>${formatPercent(item.margin)}</span>
+                                <span>${item.date}</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons" style="flex: 0; gap: 0.5rem;">
+                            <button class="btn btn-text" style="flex: 0; padding: 0.5rem 1rem; font-size: 0.75rem;" onclick="loadCalc('${item.id}')">Abrir</button>
+                            <button class="btn btn-text" style="flex: 0; padding: 0.5rem 1rem; font-size: 0.75rem; color: #EF4444;" onclick="deleteCalc('${item.id}')">Excluir</button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+        }
+
+        function loadCalc(id) {
+            const history = JSON.parse(safeStorage.getItem('calc_history') || '[]');
+            const calc = history.find(h => h.id === id);
+            if (calc) {
+                Object.keys(calc.data).forEach(key => {
+                    const field = document.getElementById(key);
+                    if (field) {
+                        if (field.type === 'checkbox') field.checked = calc.data[key];
+                        else field.value = calc.data[key];
+                    }
+                });
+                selectMarketplace(calc.data.marketplace);
+                switchTab('calculator');
+                alert('✓ Cálculo carregado!');
+            }
+        }
+
+        function deleteCalc(id) {
+            if (confirm('Deseja excluir este cálculo?')) {
+                let history = JSON.parse(safeStorage.getItem('calc_history') || '[]');
+                history = history.filter(h => h.id !== id);
+                safeStorage.setItem('calc_history', JSON.stringify(history));
+                updateHistoryUI();
+            }
+        }
+
+        function clearHistory() {
+            if (confirm('Deseja limpar todo o histórico?')) {
+                safeStorage.removeItem('calc_history');
+                updateHistoryUI();
+            }
+        }
+
+        function saveFormState() {
+            const form = document.getElementById('pricing-form');
+            const formData = new FormData(form);
+            const state = Object.fromEntries(formData);
+            state.marketplace = selectedMarketplace;
+            safeStorage.setItem('form_state', JSON.stringify(state));
+        }
+
+        function restoreFormState() {
+            try {
+                const state = JSON.parse(safeStorage.getItem('form_state') || '{}');
+                Object.keys(state).forEach(key => {
+                    if (key === 'marketplace') {
+                        selectMarketplace(state.marketplace);
+                    } else {
+                        const field = document.getElementById(key);
+                        if (field) {
+                            if (field.type === 'checkbox') field.checked = state[key];
+                            else field.value = state[key];
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
+        function toggleCollapsible(btn) {
+            const content = btn.nextElementSibling;
+            content.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        function toggleDetails(btn) {
+            const content = btn.nextElementSibling;
+            content.classList.toggle('open');
+            btn.classList.toggle('open');
+        }
+
+        function switchTab(tabName, btn) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`)?.classList.add('active');
+            if (btn) btn.classList.add('active');
+
+            if (tabName === 'compare') {
+                showComparison();
+            }
+        }
+
+        function showComparison() {
+            const form = document.getElementById('pricing-form');
+            const formData = new FormData(form);
+            const inputs = Object.fromEntries(formData);
+            inputs.marketplace = selectedMarketplace;
+
+            ['ml_free_freight_toggle', 'shopee_pix_paid', 'tiktok_new_seller', 'tiktok_free_freight', 'tiktok_affiliates'].forEach(field => {
+                const elem = document.getElementById(field);
+                inputs[field] = elem ? (elem.checked === true) : false;
+            });
+
+            const errors = validateInputs(inputs);
+            if (Object.keys(errors).length > 0 || !selectedMarketplace) {
+                document.getElementById('comparison-container').innerHTML = '<div class="placeholder-section">Preencha o formulário com valores válidos para ver a comparação</div>';
+                return;
+            }
+
+            const comparisons = getAllChannels().map(channel => {
+                const costs = calculateCosts(channel.id, inputs);
+                if (!costs) return null;
+                const results = calculateResults(channel.id, inputs, costs);
+                if (!results) return null;
+                return {
+                    name: channel.name,
+                    price: formatBRL(results.salePrice),
+                    margin: formatPercent(results.netMargin),
+                    profit: formatBRL(results.netProfit),
+                    commission: formatBRL(costs.marketplace.commission),
+                    status: results.status
+                };
+            }).filter(Boolean).sort((a, b) => parseFloat(b.margin) - parseFloat(a.margin));
+
+            if (comparisons.length === 0) {
+                document.getElementById('comparison-container').innerHTML = '<div class="placeholder-section">Erro ao calcular comparação</div>';
+                return;
+            }
+
+            let html = `<table class="comparison-table"><thead><tr><th>Marketplace</th><th>Margem (%)</th><th>Lucro</th><th>Preço</th><th>Comissão</th></tr></thead><tbody>`;
+            comparisons.forEach(c => {
+                html += `<tr class="${c.status}"><td>${c.name}</td><td>${c.margin}</td><td>${c.profit}</td><td>${c.price}</td><td>${c.commission}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+
+            document.getElementById('comparison-container').innerHTML = html;
+        }
+
+        function setupMobileNav() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const tabName = e.target.textContent.toLowerCase().includes('calc') ? 'calculator' : e.target.textContent.toLowerCase().includes('comp') ? 'compare' : 'history';
+                    switchTab(tabName, item);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
