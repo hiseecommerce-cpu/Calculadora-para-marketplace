@@ -257,7 +257,7 @@
 
         .marketplace-selector {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 0.75rem;
         }
 
@@ -277,6 +277,45 @@
             justify-content: center;
             gap: 0.5rem;
             white-space: nowrap;
+        }
+
+        /* Mobile: Transform marketplace selector into accordion */
+        @media (max-width: 768px) {
+            .marketplace-selector {
+                display: flex;
+                flex-direction: column;
+                gap: 0;
+                grid-template-columns: none;
+            }
+
+            .marketplace-option {
+                padding: 1rem;
+                border: 1px solid var(--border);
+                border-radius: 0;
+                width: 100%;
+                justify-content: flex-start;
+                padding-left: 1.25rem;
+                position: relative;
+                margin-bottom: 0;
+            }
+
+            .marketplace-option:first-child {
+                border-radius: 8px 8px 0 0;
+            }
+
+            .marketplace-option:last-child {
+                border-radius: 0 0 8px 8px;
+            }
+
+            .marketplace-option:not(:last-child) {
+                border-bottom: none;
+            }
+
+            .marketplace-option.active {
+                background: rgba(59, 130, 246, 0.08);
+                border-color: var(--primary);
+                box-shadow: inset 3px 0 0 var(--primary);
+            }
         }
 
         .marketplace-dot {
@@ -676,6 +715,10 @@
         }
 
         .detail-value.cost {
+            color: var(--danger);
+        }
+
+        .detail-value.discount {
             color: var(--danger);
         }
 
@@ -1596,9 +1639,15 @@
                         <div class="detail-row">
                             <span class="detail-label">
                                 Faturamento Bruto
-                                <span class="tooltip-icon" data-tooltip="Valor total que você receberá pela venda">?</span>
+                                <span class="tooltip-icon" data-tooltip="Valor total que você receberá pela venda antes de descontos">?</span>
                             </span>
                             <span class="detail-value">${formatBRL(results.salePrice)}</span>
+                        </div>
+                        ${inputs.discount > 0 ? `<div class="detail-row"><span class="detail-label">Desconto <span class="tooltip-icon" data-tooltip="Desconto oferecido no preço do produto">?</span></span><span class="detail-value discount">-${formatBRL(inputs.discount)}</span></div>` : ''}
+                        ${inputs.coupon > 0 ? `<div class="detail-row"><span class="detail-label">Cupom <span class="tooltip-icon" data-tooltip="Valor de cupom ou promoção descontado">?</span></span><span class="detail-value discount">-${formatBRL(inputs.coupon)}</span></div>` : ''}
+                        <div class="detail-row" style="border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; font-weight: 600;">
+                            <span class="detail-label">Faturamento Líquido</span>
+                            <span class="detail-value">${formatBRL(results.salePrice - (inputs.discount || 0) - (inputs.coupon || 0))}</span>
                         </div>
                     </div>
                 </div>
@@ -1611,7 +1660,7 @@
                     <div class="details-content">
                         ${costs.marketplace.commission > 0 ? `<div class="detail-row"><span class="detail-label">Comissão (${costs.marketplace.commissionPercent}%) <span class="tooltip-icon" data-tooltip="Percentual que o marketplace cobra sobre a venda">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.commission)}</span></div>` : ''}
                         ${costs.marketplace.fixedFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Fixa <span class="tooltip-icon" data-tooltip="Valor fixo cobrado pelo marketplace">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.fixedFee)}</span></div>` : ''}
-                        ${costs.marketplace.freight > 0 ? `<div class="detail-row"><span class="detail-label">Frete <span class="tooltip-icon" data-tooltip="Custo de envio da mercadoria">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.freight)}</span></div>` : ''}
+                        ${costs.marketplace.freight > 0 ? `<div class="detail-row"><span class="detail-label">Frete <span class="tooltip-icon" data-tooltip="${channelId === 'tiktokshop' ? 'Frete cobrado: 6% do preço quando Programa de frete grátis está ativo' : 'Custo de envio da mercadoria'}">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.freight)}</span></div>` : ''}
                         ${costs.marketplace.gatewayFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Gateway <span class="tooltip-icon" data-tooltip="Taxa do gateway de pagamento (ex: Mercado Pago)">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.gatewayFee)}</span></div>` : ''}
                     </div>
                 </div>
