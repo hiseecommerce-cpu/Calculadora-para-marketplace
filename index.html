@@ -1453,7 +1453,8 @@
                 fixedExpenses: formatCurrency(fixedExpenses),
                 variableCosts: formatCurrency(variableCosts),
                 totalCost: formatCurrency(totalCost),
-                breakdown: { productCost, commission: marketplaceCosts.commission, fixedFee: marketplaceCosts.fixedFee, freight: marketplaceCosts.freight || 0, tax: taxValue, operational: costOperational, packaging: costPackaging, label: costLabel, discount, coupon, cac, refund: costRefund, financial: costFinancial, fixedExpenses },
+                totalCostNumeric: totalCost,
+                breakdown: { productCost, commission: marketplaceCosts.commission, fixedFee: marketplaceCosts.fixedFee, freight: marketplaceCosts.freight || 0, affiliates: marketplaceCosts.affiliates || 0, tax: taxValue, operational: costOperational, packaging: costPackaging, label: costLabel, discount, coupon, cac, refund: costRefund, financial: costFinancial, fixedExpenses },
                 salePrice: salePrice
             };
         }
@@ -1465,10 +1466,11 @@
             const profitGoal = parseFloat(inputs.profit_goal || 10);
             const marginDesired = parseFloat(inputs.margin_desired || 25);
 
-            const netProfit = salePrice - costs.totalCost;
+            console.log(`calculateResults: salePrice=${salePrice}, totalCostNumeric=${costs.totalCostNumeric}, totalCostFormatted=${costs.totalCost}`);
+            const netProfit = salePrice - (costs.totalCostNumeric || 0);
             const netMargin = salePrice > 0 ? (netProfit / salePrice) * 100 : 0;
             const totalProfit = netProfit * quantity;
-            const variableProfit = salePrice - costs.variableCosts;
+            const variableProfit = salePrice - parseFloat(costs.variableCosts || 0);
             const contributionMargin = salePrice > 0 ? (variableProfit / salePrice) * 100 : 0;
             let breakEvenUnits = 0;
             if (netProfit > 0 && costs.fixedExpenses > 0) breakEvenUnits = Math.ceil(costs.fixedExpenses / netProfit);
@@ -1553,7 +1555,7 @@
             }
 
             const costPercentage = (costs.productCost / results.salePrice) * 100;
-            const taxesPercentage = ((costs.marketplace.commission + costs.marketplace.fixedFee + costs.marketplace.freight + costs.marketplace.gatewayFee) / results.salePrice) * 100;
+            const taxesPercentage = ((costs.marketplace.commission + costs.marketplace.fixedFee + costs.marketplace.freight + costs.marketplace.affiliates + costs.marketplace.gatewayFee) / results.salePrice) * 100;
             const taxPercentage = (costs.tax.value / results.salePrice) * 100;
             const operationPercentage = ((costs.operational.operational + costs.operational.packaging + costs.operational.label + costs.operational.discount + costs.operational.coupon + costs.operational.cac + costs.operational.refund + costs.operational.financial + costs.fixedExpenses) / results.salePrice) * 100;
             const profitPercentage = 100 - costPercentage - taxesPercentage - taxPercentage - operationPercentage;
@@ -1661,6 +1663,7 @@
                         ${costs.marketplace.commission > 0 ? `<div class="detail-row"><span class="detail-label">Comissão (${costs.marketplace.commissionPercent}%) <span class="tooltip-icon" data-tooltip="Percentual que o marketplace cobra sobre a venda">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.commission)}</span></div>` : ''}
                         ${costs.marketplace.fixedFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Fixa <span class="tooltip-icon" data-tooltip="Valor fixo cobrado pelo marketplace">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.fixedFee)}</span></div>` : ''}
                         ${costs.marketplace.freight > 0 ? `<div class="detail-row"><span class="detail-label">Frete <span class="tooltip-icon" data-tooltip="${channelId === 'tiktokshop' ? 'Frete cobrado: 6% do preço quando Programa de frete grátis está ativo' : 'Custo de envio da mercadoria'}">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.freight)}</span></div>` : ''}
+                        ${costs.marketplace.affiliates > 0 ? `<div class="detail-row"><span class="detail-label">Comissão Afiliado <span class="tooltip-icon" data-tooltip="Comissão paga para afiliados que gerarem vendas">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.affiliates)}</span></div>` : ''}
                         ${costs.marketplace.gatewayFee > 0 ? `<div class="detail-row"><span class="detail-label">Taxa Gateway <span class="tooltip-icon" data-tooltip="Taxa do gateway de pagamento (ex: Mercado Pago)">?</span></span><span class="detail-value cost">${formatBRL(costs.marketplace.gatewayFee)}</span></div>` : ''}
                     </div>
                 </div>
@@ -2098,6 +2101,7 @@
                 const comparisons = getAllChannels().map(channel => {
                     const costs = calculateCosts(channel.id, inputs);
                     if (!costs) return null;
+                    console.log(`showComparison for ${channel.id}: totalCostNumeric=${costs.totalCostNumeric}`);
                     const results = calculateResults(channel.id, inputs, costs);
                     if (!results) return null;
                     return {
